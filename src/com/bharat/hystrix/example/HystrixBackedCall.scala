@@ -19,7 +19,7 @@ class HystrixBackedCall(query :String) extends
 
   override def run():String={
     val httpClient = HttpClients.custom().setConnectionTimeToLive(1000,TimeUnit.MILLISECONDS).build()
-    val httpGet = new HttpGet("http://localhost:1080/api?simulate=" + query)
+    val httpGet = createRequest(query)
     val response =  httpClient.execute(httpGet)
     try{
       IOUtils.toString(response.getEntity.getContent)
@@ -29,8 +29,10 @@ class HystrixBackedCall(query :String) extends
     }
   }
 
+  def createRequest(queryString:String):HttpGet=new HttpGet("http://localhost:19898/api?simulate=" + queryString)
+
   override def getFallback():String ={
-      "something wrong happend"
+      throw new Exception("circuit is opened")
   }
   
 }
